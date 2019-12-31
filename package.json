@@ -1,0 +1,30 @@
+{
+  "name": "arley-fe-mooc",
+  "version": "0.0.1",
+  "description": "前端私塾 => (arley's blog)",
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "deploy": "bash ./deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/arleyGuoLei/fe-mooc-blog.git"
+  },
+  "keywords": [
+    "fe"
+  ],
+  "author": "arley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arleyGuoLei/fe-mooc-blog/issues"
+  },
+  "homepage": "https://github.com/arleyGuoLei/fe-mooc-blog#readme",
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "jest": "^24.9.0",
+    "vuepress": "^1.2.0",
+    "vuepress-theme-reco": "^1.1.0"
+  },
+  "dependencies": {}
+}
