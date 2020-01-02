@@ -1,6 +1,6 @@
 ---
 title: 前端一万五 - typeScript篇
-date: 2019-12-30T07:53:55.626Z
+date: 2019-12-27 08:47:20
 sidebar: 'auto'
 categories: 
  - 前端一万五
@@ -1211,3 +1211,563 @@ interface Point3d extends Point {
 
 let point3d: Point3d = {x: 1, y: 2, z: 3}
 ```
+
+## 函数
+
+### 可选参数和默认参数
+
+```ts
+function buildName(firstName: string, lastName?: string): string { // 可选参数
+  if (lastName)
+    return firstName + ' ' + lastName
+  else
+    return firstName
+}
+
+let result1 = buildName('Bob');  // 现在正常了
+let result2 = buildName('Bob', 'Adams', 'Sr.')  // Error, 参数过多
+let result3 = buildName('Bob', 'Adams')  // OK
+```
+
+```ts
+function buildName(firstName: string, lastName = 'Smith'): string { // 默认参数
+  return firstName + ' ' + lastName
+}
+
+let result1 = buildName('Bob')                  // 返回 "Bob Smith"
+let result2 = buildName('Bob', undefined)     // 正常, 同样 "Bob Smith"
+let result3 = buildName('Bob', 'Adams', 'Sr.')  // 错误, 参数过多
+let result4 = buildName('Bob', 'Adams')        // OK
+```
+
+### 剩余参数
+
+```ts
+function buildName(firstName: string, ...restOfName: string[]): string {
+  return firstName + ' ' + restOfName.join(' ')
+}
+
+let employeeName = buildName('Joseph', 'Samuel', 'Lucas', 'MacKinzie')
+```
+
+### 重载
+
+```ts
+let suits = ['hearts', 'spades', 'clubs', 'diamonds']
+
+function pickCard(x: {suit: string; card: number }[]): number
+function pickCard(x: number): {suit: string; card: number }
+
+function pickCard(x): any {
+  if (Array.isArray(x)) {
+    let pickedCard = Math.floor(Math.random() * x.length)
+    return pickedCard
+  } else if (typeof x === 'number') {
+    let pickedSuit = Math.floor(x / 13)
+    return { suit: suits[pickedSuit], card: x % 13 }
+  }
+}
+
+let myDeck = [
+  { suit: 'diamonds', card: 2 },
+  { suit: 'spades', card: 10 },
+  { suit: 'hearts', card: 4 }
+]
+let pickedCard1 = myDeck[pickCard(myDeck)];
+console.log('card: ' + pickedCard1.card + ' of ' + pickedCard1.suit)
+
+let pickedCard2 = pickCard(15)
+console.log('card: ' + pickedCard2.card + ' of ' + pickedCard2.suit)
+```
+
+## 泛型
+
+泛型（Generics）是指在定义函数、接口或类的时候，不预先指定具体的类型，而在使用的时候再指定类型的一种特性。
+
+### 基础示例
+
+不管参数传入任何值，都进行返回。
+
+```ts
+// 错误写法
+function identity(arg: any): any {
+  return arg
+}
+
+// 正确应使用泛型
+function identity<T>(arg: T): T {
+  // 在函数体内使用 arg.length 会报错，因为不知道arg具体类型。 如果入参改为 arg: T[]，就可以调用length，可以理解为数组长度
+  // 正确处理方式应该为泛型约束，可以看下面解释
+  return arg
+}
+
+let output = identity<string>('myString') // 这里我们明确的指定了 T 是 string 类型，并做为一个参数传给函数，使用了 <> 括起来而不是 ()。
+
+// 或
+
+let output = identity('myString')
+
+// 注意我们没必要使用尖括号（<>）来明确地传入类型；编译器可以查看 myString 的值，然后把 T 设置为它的类型。
+// 如果编译器不能够自动地推断出类型的话，只能像上面那样明确的传入 T 的类型，在一些复杂的情况下，这是可能出现的。
+```
+
+### 泛型接口
+
+```ts
+interface GenericIdentityFn {
+  <T>(arg: T): T
+}
+
+function identity<T>(arg: T): T {
+  return arg
+}
+
+let myIdentity: GenericIdentityFn = identity
+```
+
+优化
+
+```ts
+interface GenericIdentityFn<T> {
+  (arg: T): T
+}
+
+function identity<T>(arg: T): T {
+  return arg
+}
+
+let myIdentity: GenericIdentityFn<number> = identity
+```
+
+### 泛型类
+
+```ts
+class GenericNumber<T> {
+  zeroValue: T
+  add: (x: T, y: T) => T
+}
+
+let myGenericNumber = new GenericNumber<number>()
+myGenericNumber.zeroValue = 0
+myGenericNumber.add = function(x, y) {
+  return x + y
+}
+
+let stringNumeric = new GenericNumber<string>()
+stringNumeric.zeroValue = ''
+stringNumeric.add = function(x, y) {
+  return x + y
+}
+```
+
+### 泛型约束
+
+```ts
+function loggingIdentity<T>(arg: T): T {
+  console.log(arg.length) // 上述会报错的例子
+  return arg
+}
+```
+
+解决方法： 泛型约束，我们定义一个接口来描述约束条件，创建一个包含 .length 属性的接口，使用这个接口和 extends 关键字来实现约束：
+
+```ts
+interface Lengthwise {
+  length: number
+}
+
+function loggingIdentity<T extends Lengthwise>(arg: T): T {
+  console.log(arg.length) // OK
+  return arg
+}
+
+// 现在这个泛型函数被定义了约束，因此它不再是适用于任意类型：
+loggingIdentity(3);  // Error
+loggingIdentity({length: 10, value: 3}) // OK
+```
+
+#### 在泛型约束中使用类型参数
+
+你可以声明一个类型参数，且它被另一个类型参数所约束。 比如，现在我们想要用属性名从对象里获取这个属性。 并且我们想要确保这个属性存在于对象 obj 上，因此我们需要在这两个类型之间使用约束。
+
+```ts
+function getProperty<T, K extends keyof T> (obj: T, key: K ) {
+  return obj[key]
+}
+
+let x = {a: 1, b: 2, c: 3, d: 4}
+
+getProperty(x, 'a') // okay
+getProperty(x, 'm') // error
+```
+
+## 类型推论
+
+如果没有明确的指定类型，那么 TypeScript 会依照类型推论（Type Inference）的规则推断出一个类型。
+
+### 什么是类型推论
+
+以下代码虽然没有指定类型，但是会在编译的时候报错：
+
+```ts
+let myFavoriteNumber = 'seven';
+myFavoriteNumber = 7;
+
+// index.ts(2,1): error TS2322: Type 'number' is not assignable to type 'string'.
+```
+
+事实上，它等价于：
+
+```ts
+let myFavoriteNumber: string = 'seven';
+myFavoriteNumber = 7;
+
+// index.ts(2,1): error TS2322: Type 'number' is not assignable to type 'string'.
+```
+
+TypeScript 会在没有明确的指定类型的时候推测出一个类型，这就是类型推论。
+
+如果定义的时候没有赋值，不管之后有没有赋值，都会被推断成 any 类型而完全不被类型检查：
+
+```ts
+let myFavoriteNumber;
+myFavoriteNumber = 'seven';
+myFavoriteNumber = 7;
+```
+
+## 高级类型
+
+### 交叉类型
+
+交叉类型是将多个类型合并为一个类型。 这让我们可以把现有的多种类型叠加到一起成为一种类型，它包含了所需的所有类型的特性。 例如，Person & Loggable 同时是 Person 和 Loggable。 就是说这个类型的对象同时拥有了这两种类型的成员。
+
+我们大多是在混入（mixins）或其它不适合典型面向对象模型的地方看到交叉类型的使用。 （在 JavaScript 里发生这种情况的场合很多！） 下面是如何创建混入的一个简单例子：
+
+```ts
+function extend<T, U> (first: T, second: U): T & U {
+  let result = {} as T & U
+  for (let id in first) {
+    result[id] = first[id] as any
+  }
+  for (let id in second) {
+    if (!result.hasOwnProperty(id)) {
+      result[id] = second[id] as any
+    }
+  }
+  return result
+}
+
+class Person {
+  constructor (public name: string) {
+  }
+}
+
+interface Loggable {
+  log (): void
+}
+
+class ConsoleLogger implements Loggable {
+  log () {
+    // ...
+  }
+}
+
+var jim = extend(new Person('Jim'), new ConsoleLogger())
+var n = jim.name
+jim.log()
+```
+
+### 类型别名
+
+类型别名用来给一个类型起个新名字。
+
+```ts
+// 使用 type 创建类型别名
+type Name = string;
+type NameResolver = () => string;
+type NameOrResolver = Name | NameResolver;
+function getName(n: NameOrResolver): Name {
+    if (typeof n === 'string') {
+        return n;
+    } else {
+        return n();
+    }
+}
+```
+
+### 联合类型
+
+联合类型与交叉类型很有关联，但是使用上却完全不同。 偶尔你会遇到这种情况，一个代码库希望传入 number 或 string 类型的参数。 例如下面的函数：
+
+```ts
+function padLeft(value: string, padding: any) {
+  if (typeof padding === 'number') {
+    return Array(padding + 1).join(' ') + value
+  }
+  if (typeof padding === 'string') {
+    return padding + value
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`)
+}
+
+padLeft('Hello world', 4) // returns "    Hello world"
+
+let indentedString = padLeft('Hello world', true) // 编译阶段通过，运行时报错
+```
+
+padLeft 存在一个问题，padding 参数的类型指定成了 any。 这就是说我们可以传入一个既不是 number 也不是 string 类型的参数，但是 TypeScript 却不报错。
+
+```ts
+function padLeft(value: string, padding: string | number) { // 联合类型
+  // ...
+}
+
+let indentedString = padLeft('Hello world', true) // 编译阶段报错
+```
+
+如果一个值是联合类型，我们只能访问此联合类型的所有类型里共有的成员。
+
+```ts
+interface Bird {
+  fly()
+  layEggs()
+}
+
+interface Fish {
+  swim()
+  layEggs()
+}
+
+function getSmallPet(): Fish | Bird {
+  // ...
+}
+
+let pet = getSmallPet()
+pet.layEggs() // okay 共有
+pet.swim()    // error 非共有
+```
+
+### 类型保护
+
+联合类型适合于那些值可以为不同类型的情况。 但当我们想确切地了解是否为 Fish 或者是 Bird 时怎么办？ JavaScript 里常用来区分这 2 个可能值的方法是检查成员是否存在。如之前提及的，我们只能访问联合类型中共同拥有的成员。
+
+```ts
+interface Bird {
+  fly()
+  layEggs()
+}
+
+interface Fish {
+  swim()
+  layEggs()
+}
+
+function getSmallPet(): Fish | Bird {
+  // ...
+}
+
+let pet = getSmallPet()
+
+// 每一个成员访问都会报错
+if (pet.swim) {
+  pet.swim()
+} else if (pet.fly) {
+  pet.fly()
+}
+```
+
+为了让这段代码工作，我们要使用类型断言：
+
+```ts
+let pet = getSmallPet()
+
+if ((pet as Fish).swim) {
+  (pet as Fish).swim()
+} else {
+  (pet as Bird).fly()
+}
+```
+
+1. 用户自定义的类型保护
+
+这里可以注意到我们不得不多次使用类型断言。如果我们一旦检查过类型，就能在之后的每个分支里清楚地知道 pet 的类型的话就好了。
+
+TypeScript 里的类型保护机制让它成为了现实。 类型保护就是一些表达式，它们会在运行时检查以确保在某个作用域里的类型。定义一个类型保护，我们只要简单地定义一个函数，它的返回值是一个类型谓词：
+
+```ts
+// 在这个例子里，pet is Fish 就是类型谓词。谓词为 parameterName is Type 这种形式， parameterName 必须是来自于当前函数签名里的一个参数名。
+function isFish(pet: Fish | Bird): pet is Fish {
+  return (pet as Fish).swim !== undefined
+}
+
+if (isFish(pet)) {
+  pet.swim()
+} else {
+  pet.fly()
+}
+// TypeScript 不仅知道在 if 分支里 pet 是 Fish 类型；它还清楚在 else 分支里，一定不是 Fish类型而是 Bird 类型。
+```
+
+2. typeof 类型保护
+
+```ts
+function padLeft (value: string, padding: string | number) {
+  if (typeof padding === 'number') {
+    return Array(padding + 1).join(' ') + value
+  }
+  if (typeof padding === 'string') {
+    return padding + value
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`)
+}
+```
+
+3. instanceof 类型保护
+
+```ts
+class Bird {
+  fly () {
+    console.log('bird fly')
+  }
+
+  layEggs () {
+    console.log('bird lay eggs')
+  }
+}
+
+class Fish {
+  swim () {
+    console.log('fish swim')
+  }
+
+  layEggs () {
+    console.log('fish lay eggs')
+  }
+}
+
+function getRandomPet () {
+  return Math.random() > 0.5 ? new Bird() : new Fish()
+}
+
+let pet = getRandomPet()
+
+if (pet instanceof Bird) {
+  pet.fly()
+}
+if (pet instanceof Fish) {
+  pet.swim()
+}
+```
+
+### null与undefined可赋值给任何类型
+
+TypeScript 具有两种特殊的类型，null 和 undefined，它们分别具有值 null 和 undefined。我们在基础类型一节里已经做过简要说明。 默认情况下，类型检查器认为 null 与 undefined 可以赋值给任何类型。 null 与 undefined 是所有其它类型的一个有效值。 这也意味着，你阻止不了将它们赋值给其它类型，就算是你想要阻止这种情况也不行。
+
+--strictNullChecks 标记可以解决此错误：当你声明一个变量时，它不会自动地包含 null 或 undefined。 你可以使用联合类型明确的包含它们：
+
+```ts
+let s = 'foo'
+s = null // 错误, 'null'不能赋值给'string'
+let sn: string | null = 'bar'
+sn = null // 可以
+
+sn = undefined // error, 'undefined'不能赋值给'string | null'
+```
+
+:::tip
+按照 JavaScript 的语义，TypeScript 会把 null 和 undefined 区别对待。string | null，string | undefined 和 string | undefined | null 是不同的类型。
+:::
+
+### 可选参数和可选属性
+
+使用了 --strictNullChecks，可选参数会被自动地加上 | undefined:
+
+```ts
+function f(x: number, y?: number) {
+  return x + (y || 0)
+}
+f(1, 2)
+f(1)
+f(1, undefined)
+f(1, null) // error, 'null' 不能赋值给 'number | undefined'
+```
+
+可选属性也会有同样的处理：
+
+```ts
+class C {
+  a: number
+  b?: number
+}
+let c = new C()
+c.a = 12
+c.a = undefined // error, 'undefined' 不能赋值给 'number'
+c.b = 13
+c.b = undefined // ok
+c.b = null // error, 'null' 不能赋值给 'number | undefined'
+```
+
+### 类型保护和类型断言
+
+由于可以为 null 的类型能和其它类型定义为联合类型，那么你需要使用类型保护来去除 null。幸运地是这与在 JavaScript 里写的代码一致：
+
+```ts
+function f(sn: string | null): string {
+  if (sn === null) {
+    return 'default'
+  } else {
+    return sn
+  }
+}
+
+function f(sn: string | null): string {
+  return sn || 'default'
+}
+```
+
+如果编译器不能够去除 null 或 undefined，你可以使用类型断言手动去除。语法是添加 ! 后缀： identifier! 从 identifier 的类型里去除了 null 和 undefined：
+
+```ts
+function broken(name: string | null): string {
+  function postfix(epithet: string) {
+    return name.charAt(0) + '.  the ' + epithet // error, 'name' 可能为 null
+  }
+  name = name || 'Bob'
+  return postfix('great')
+}
+
+function fixed(name: string | null): string {
+  function postfix(epithet: string) {
+    return name!.charAt(0) + '.  the ' + epithet // ok 添加"!"后缀
+  }
+  name = name || 'Bob'
+  return postfix('great')
+}
+
+broken(null)
+
+```
+
+### 字符串字面量类型
+
+```ts
+type Easing = 'ease-in' | 'ease-out' | 'ease-in-out' // 字符串字面量类型都是使用 type 进行定义。
+
+class UIElement {
+  animate (dx: number, dy: number, easing: Easing) {
+    if (easing === 'ease-in') {
+      // ...
+    } else if (easing === 'ease-out') {
+    } else if (easing === 'ease-in-out') {
+    } else {
+      // error! 不能传入 null 或者 undefined.
+    }
+  }
+}
+
+let button = new UIElement()
+button.animate(0, 0, 'ease-in')
+button.animate(0, 0, 'uneasy') // error
+```
+
+全文完
