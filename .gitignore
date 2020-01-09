@@ -2,3 +2,4 @@ node_modules/
 docs/.vuepress/themeConfig/valineConfig.local.js
 docs/.vuepress/dist/
 books/前端面试之道/
+coding/words-Python/docs/
