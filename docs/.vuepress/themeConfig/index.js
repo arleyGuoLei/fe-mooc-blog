@@ -8,6 +8,7 @@ module.exports = {
   noFoundPageByTencent: false,
   sidebarDepth: 1,
   author: '私塾学者',
+  authorAvatar: '/images/faceImage.png',
   logo: '',
   nav,
   valineConfig,
