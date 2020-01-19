@@ -3,8 +3,15 @@ const head = require('./themeConfig/htmlHeader.js')
 
 module.exports = {
   title: '前端私塾',
-  description: '越(xue)学(bu)越(dong)上(le)瘾(!)',
+  description: '郭磊的前端博客 (arley’s blog)',
   theme: 'reco',
   themeConfig,
-  head
+  head,
+  locales: {
+    '/': {
+      lang: 'zh-CN',
+      title: "前端私塾",
+      description: '郭磊的前端博客 (arley’s blog)'
+    }
+  },
 }
