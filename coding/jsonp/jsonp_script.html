@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSONP</title>
+  </head>
+  <body>
+    <script>
+      function jsonp(url, jsonpCallback, success) {
+        let script = document.createElement("script");
+        script.src = url;
+        script.async = true;
+        script.type = "text/javascript";
+        window[jsonpCallback] = function (data) {
+          success && success(data);
+        };
+        document.body.appendChild(script);
+      }
+      jsonp("http://unionsug.baidu.com/su?wd=a&p=1&cb=callback", "callback", function (value) {
+        console.log(value);
+      });
+    </script>
+  </body>
+</html>

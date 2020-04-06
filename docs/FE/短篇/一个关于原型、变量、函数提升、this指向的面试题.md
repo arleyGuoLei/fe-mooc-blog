@@ -118,10 +118,8 @@ function create() {
 
 总结：
 
-:::tip
 使用obj.prototype.function的形式，相当于实例方法，需要通过new调用；
 使用obj.function的形式，相当于静态方法，不需要通过new调用
-:::
 
 ### 考点二：变量/函数提升
 
@@ -134,15 +132,48 @@ function a() { }
 function b() { }
 var b = 1
 
-console.log(a)
-console.log(b)
+console.log(a) // 1
+console.log(b) // 1
 ```
 
-输出答案皆为`1`
+提升之后实际代码为：
 
-:::tip
-不管是先声明了变量或先声明了函数，函数的都先进行提升，然后才做变量提升，所以变量的形式会覆盖函数的形式。
-:::
+```js
+function a() { }
+function b() { }
+var a
+var b
+a = 1
+b = 1
+
+console.log(a) // 1
+console.log(b) // 1
+```
+
+所以输出答案皆为`1`
+
+
+```js
+console.log(a) // ƒ a() {}
+function a() {}
+var a = 1
+// ---- 或下面代码
+console.log(a) // ƒ a() {}
+var a = 1
+function a() {}
+```
+
+提升之后实际代码为：
+
+```js
+function a() {}
+var a
+console.log(a) // ƒ a() {}
+a = 1
+```
+
+所以输出答案皆为`ƒ a() {}`
+
 
 ```js
 var log = function() {
@@ -155,7 +186,25 @@ function log() { // 上移至var log上方，不影响结果
 log() // 无论顺序，结果都为4
 ```
 
-所以上述代码，两个log定义的方式无论谁先谁后，结果都是输出`var`变量声明的形式。
+
+提升之后实际代码为：
+
+```js
+function log() { // 上移至var log上方，不影响结果
+  console.log(5)
+}
+
+var log
+
+log = function() {
+  console.log(4)
+}
+
+log() // 4
+```
+
+结论：函数提升优于变量提升，函数提升会把整个函数挪到作用域顶部，变量提升只会把声明挪到作用域顶部。
+
 
 ### 考点三: this指向
 
@@ -264,4 +313,4 @@ new new num().log()
 ```js
 var num1 = new num()
 var log = new num1.log()
-```
+``
