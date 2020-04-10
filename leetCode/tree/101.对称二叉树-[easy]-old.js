@@ -61,4 +61,3 @@ var isSymmetric = function(root) {
   return walk(root.left, root.right)
 }
 // @lc code=end
-

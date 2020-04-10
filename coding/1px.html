@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1px demo</title>
+    <style>
+      div[class^="border-"] {
+        width: 200px;
+        padding: 0;
+        box-sizing: border-box;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="drp"></p>
+    <p id="width"></p>
+    <p>css中的px指的是逻辑像素，iPhone6 为375的逻辑像素，物理像素为750</p>
+    <style>
+      .one-px {
+        border: 1px solid palevioletred;
+        margin-bottom: 5px;
+      }
+      .one-px-bottom {
+        border-bottom:1px solid blue;
+        margin-bottom: 5px;
+      }
+      .border-media {
+        border: 1px solid #000000;
+      }
+      @media screen and (-webkit-min-device-pixel-ratio: 2) {
+        .border-media {
+          border: 0.5px solid red;
+        }
+      }
+      @media screen and (-webkit-min-device-pixel-ratio: 3) {
+        .border-media {
+          border: 0.333333px solid green;
+        }
+      }
+    </style>
+    <div class="one-px"></div>
+    <div class="one-px-bottom"></div>
+    <div class="border-media"></div>
+
+    <style>
+      .border-scale {
+        position: relative;
+        margin-top: 5px!important;
+      }
+      .border-scale::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 1px;
+        transform-origin: 0 0;
+        background: cyan;
+      }
+
+      /*设备像素比*/
+      /*显示屏最小dpr为2*/
+      @media (-webkit-min-device-pixel-ratio: 2) {
+        .border-scale::after {
+            transform: scaleY(0.5);
+        }
+      }
+
+    /*设备像素比*/
+    @media (-webkit-min-device-pixel-ratio: 3)  {
+      .border-scale::after {
+        transform: scaleY(0.333333);
+      }
+    }
+    /*需要注意<input type="button">是没有:before, :after伪元素的*/
+    </style>
+    <div class="border-scale"></div>
+    <script>
+      document.querySelector("#drp").innerHTML =
+        "drp: " + window.devicePixelRatio;
+      document.querySelector("#width").innerHTML =
+        "innerWidth: " + window.innerWidth;
+    </script>
+  </body>
+</html>
