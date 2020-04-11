@@ -54,7 +54,7 @@ class Observer {
         this.defineReactive(data, key, data[key])
       }
     } else {
-
+      // 函数||其他的处理
     }
   }
   defineReactive(obj, key, value) {
@@ -68,7 +68,7 @@ class Observer {
         return value
       },
       set: (newValue) => { // school = {}  箭头函数 解决 this
-        if (newValue != value) {
+        if (newValue !== value) {
           this.observer(newValue)
           value = newValue
           dep.notify()
@@ -83,11 +83,11 @@ class Compiler {
   constructor(el, vm) {
     // 判断 el 属性 是不是元素 如果不是元素就获取
     this.el = this.isElementNode(el) ? el : document.querySelector(el)
-    console.log(this.el)
+    // console.log(this.el)
     // 把当前节点的元素 获取到 放到内存中
     this.vm = vm
     const fragment = this.node2fragment(this.el)
-    console.log(fragment)
+    // console.log(fragment)
 
     // 把节点内容 进行替换
 
@@ -110,7 +110,7 @@ class Compiler {
         value: expr
       } = attr
       if (this.isDirective(name)) { // v-model v-html v-bind
-        console.log(node, 'element')
+        // console.log(node, 'element')
         const [, directive] = name.split('-')
         // v-on:click
         const [directiveName, eventName] = directive.split(':')
@@ -135,18 +135,20 @@ class Compiler {
     // console.log(childNodes);
     [...childNodes].forEach(child => {
       if (this.isElementNode(child)) {
-        // console.log('element',child)
+        // console.log('element', child)
         this.compileElement(child)
         // 如果是元素的话  再去遍历 子节点 【递归】
         this.compile(child)
       } else {
-        // console.log('text',child)
+        console.log('text', child)
         this.compileText(child)
       }
     })
   }
   // 把当前节点的元素 获取到 放到内存中
   node2fragment(node) {
+    // documentFragment，是没有父节点的最小文档对象，常用于存储html和xml文档，有Node的所有属性和方法，完全可以操作Node那样操作。
+    // DocumentFragment文档片段是存在于内存中的，没有在DOM中，所以将子元素插入到文档片段中不会引起页面回流，因此使用DocumentFragment可以起到性能优化作用。
     // 创建文档碎片
     const fragment = document.createDocumentFragment()
     let firstChild
@@ -155,6 +157,9 @@ class Compiler {
       // appendChild 具有移动性  移动元素到内存
       fragment.appendChild(firstChild)
     }
+    // console.log(node)
+    // console.log(fragment)
+
     return fragment
   }
   // 判断是否元素节点
@@ -163,7 +168,7 @@ class Compiler {
   }
 }
 
-CompileUtil = {
+const CompileUtil = {
   // 根据表达式 获取对应的数据
   getVal(vm, expr) { // vm.$data  'school.name'  [school,name]
     // console.log(vm.$data)
@@ -173,7 +178,7 @@ CompileUtil = {
   },
   setValue(vm, expr, value) { // vm.$data => [ expr => school.name ] = 姜文
     return expr.split('.').reduce((data, current, index, arr) => {
-      if (index == arr.length - 1) {
+      if (index === arr.length - 1) {
         return data[current] = value
       }
       return data[current]
@@ -192,7 +197,7 @@ CompileUtil = {
       const value = e.target.value // 获取用户输入的值
       this.setValue(vm, expr, value)
     })
-    const value = this.getVal(vm, expr) // 珠峰
+    const value = this.getVal(vm, expr)
     fn(node, value)
   },
   // 解析 v-on:click="change" 类似的 函数执行
