@@ -1,6 +1,6 @@
 --- 
 title: 60行代码 | Proxy实现一个数据驱动简易DEMO
-date: 2020-04-08
+date: 2020-02-08
 sidebar: 'auto'
 categories: 
  - 短篇博文
