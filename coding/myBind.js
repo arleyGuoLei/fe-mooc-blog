@@ -2,32 +2,23 @@
 // eslint-disable-next-line no-extend-native
 Function.prototype.myBind = function(context, ...args) {
   if (typeof this !== 'function') {
-    throw new TypeError('Error')
+    return new TypeError('is not a function')
   }
   const fn = Symbol('fn')
   context[fn] = this
-  return function F() {
-    if (this instanceof F) {
+
+  return function() {
+    if (this instanceof Function) {
       return new context[fn](...args, ...arguments)
     } else {
       return context[fn].call(this, ...args, ...arguments)
     }
   }
 }
+// new
 
-function foo(name) {
-  this.name = name
+function foo() {
+
 }
 
-foo.prototype.callName = function() {
-  console.log(this.name)
-}
-
-const obj = {
-  name: 'hello'
-}
-const Fn = foo.myBind(obj)
-
-const f1 = new Fn('arley')
-f1.callName()
-
+foo.myBind()
