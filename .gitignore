@@ -2,5 +2,6 @@ node_modules/
 docs/.vuepress/themeConfig/valineConfig.local.js
 docs/.vuepress/dist/
 books/前端面试之道/
+books/join-fe/
 coding/words-Python/docs/
 coding/words-Python/单词词库.zip

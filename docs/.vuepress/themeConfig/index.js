@@ -1,5 +1,4 @@
 const nav = require('./nav.js')
-const valineConfig = require('./valineConfig.local.js')
 
 module.exports = {
   GAID: 'UA-140255141-3',
@@ -11,7 +10,6 @@ module.exports = {
   authorAvatar: '/images/faceImage.png',
   logo: '',
   nav,
-  valineConfig,
   blogConfig: {
     category: {
       location: 2,
